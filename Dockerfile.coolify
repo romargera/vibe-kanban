@@ -1,0 +1,20 @@
+FROM node:22-bullseye-slim
+
+# Install dependencies required for downloading and running the binary
+RUN apt-get update && apt-get install -y ca-certificates wget zip unzip libc6 libgcc-s1 && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install the npx wrapper
+RUN npm install -g vibe-kanban@latest
+
+# Pre-download the architecture-specific binary during the build phase
+# We run the command with --help so it exits cleanly after downloading
+RUN VIBE_KANBAN_DEBUG=1 vibe-kanban --help || true
+
+ENV HOST=0.0.0.0
+ENV PORT=3001
+ENV VK_ALLOWED_ORIGINS=https://kanban.boonts.com
+EXPOSE 3001
+
+CMD ["vibe-kanban"]
